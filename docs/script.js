@@ -6,6 +6,12 @@ let speed = 2;
 let gameOver = false;
 let score = 0;
 
+const coinSizes = [
+    { size: 10, value: 5 },
+    { size: 20, value: 10 },
+    { size: 30, value: 15 }
+];
+
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft' && carPosition > 0) {
         carPosition -= 10;
@@ -34,36 +40,47 @@ function createObstacle() {
             if (checkCollision(car, obstacle)) {
                 gameOver = true;
                 alert('Game Over!');
+                resetGame();
             }
         }
     }, 20);
-    return obstacle;
 }
 
 function createCoin() {
     if (gameOver) return;
 
+    const coinData = coinSizes[Math.floor(Math.random() * coinSizes.length)];
     const coin = document.createElement('div');
     coin.className = 'coin';
+    coin.style.width = `${coinData.size}px`;
+    coin.style.height = `${coinData.size}px`;
     
     let coinLeft;
     let validPosition = false;
 
     while (!validPosition) {
-        coinLeft = Math.random() * (road.offsetWidth - 20);
+        coinLeft = Math.random() * (road.offsetWidth - coinData.size);
         coin.style.left = `${coinLeft}px`;
         validPosition = true;
 
-        
+        // Temporarily add the coin to the DOM to check its position
+        road.appendChild(coin);
         const obstacles = document.querySelectorAll('.obstacle');
         obstacles.forEach(obstacle => {
             if (checkOverlap(coin, obstacle)) {
                 validPosition = false;
             }
         });
+        // Remove the coin if the position is not valid
+        if (!validPosition) {
+            road.removeChild(coin);
+        }
     }
 
-    road.appendChild(coin);
+    // If the coin is not already in the DOM, add it
+    if (!coin.parentElement) {
+        road.appendChild(coin);
+    }
 
     let coinPosition = 0;
     const coinInterval = setInterval(() => {
@@ -74,7 +91,7 @@ function createCoin() {
             coinPosition += speed;
             coin.style.top = `${coinPosition}px`;
             if (checkCollision(car, coin)) {
-                score += 10;
+                score += coinData.value;
                 scoreDisplay.innerText = `Score: ${score}`;
                 clearInterval(coinInterval);
                 road.removeChild(coin);
@@ -105,6 +122,20 @@ function checkOverlap(element1, element2) {
         rect1.right < rect2.left ||
         rect1.left > rect2.right
     );
+}
+
+function resetGame() {
+    const obstacles = document.querySelectorAll('.obstacle');
+    const coins = document.querySelectorAll('.coin');
+    obstacles.forEach(obstacle => road.removeChild(obstacle));
+    coins.forEach(coin => road.removeChild(coin));
+    carPosition = road.offsetWidth / 2 - car.offsetWidth / 2;
+    car.style.left = `${carPosition}px`;
+    speed = 2;
+    score = 0;
+    scoreDisplay.innerText = `Score: ${score}`;
+    gameOver = false;
+    gameLoop();
 }
 
 function gameLoop() {
