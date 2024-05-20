@@ -1,0 +1,52 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+#gameContainer {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+    overflow: hidden;
+}
+
+#road {
+    position: relative;
+    width: 300px;
+    height: 500px;
+    background-color: #666;
+    overflow: hidden;
+}
+
+#car {
+    position: absolute;
+    bottom: 20px;
+    width: 50px;
+    height: 100px;
+    background-color: red;
+    left: calc(50% - 25px); /* center the car */
+}
+
+.obstacle {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: gray;
+}
+
+.coin {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: gold;
+    border-radius: 50%;
+}
+
+#score {
+    margin-top: 10px;
+    font-size: 20px;
+}
