@@ -37,6 +37,7 @@ function createObstacle() {
             }
         }
     }, 20);
+    return obstacle;
 }
 
 function createCoin() {
@@ -44,7 +45,24 @@ function createCoin() {
 
     const coin = document.createElement('div');
     coin.className = 'coin';
-    coin.style.left = `${Math.random() * (road.offsetWidth - 20)}px`;
+    
+    let coinLeft;
+    let validPosition = false;
+
+    while (!validPosition) {
+        coinLeft = Math.random() * (road.offsetWidth - 20);
+        coin.style.left = `${coinLeft}px`;
+        validPosition = true;
+
+        
+        const obstacles = document.querySelectorAll('.obstacle');
+        obstacles.forEach(obstacle => {
+            if (checkOverlap(coin, obstacle)) {
+                validPosition = false;
+            }
+        });
+    }
+
     road.appendChild(coin);
 
     let coinPosition = 0;
@@ -77,12 +95,24 @@ function checkCollision(car, element) {
     );
 }
 
+function checkOverlap(element1, element2) {
+    const rect1 = element1.getBoundingClientRect();
+    const rect2 = element2.getBoundingClientRect();
+
+    return !(
+        rect1.top > rect2.bottom ||
+        rect1.bottom < rect2.top ||
+        rect1.right < rect2.left ||
+        rect1.left > rect2.right
+    );
+}
+
 function gameLoop() {
     if (gameOver) return;
     createObstacle();
     createCoin();
-    setTimeout(gameLoop, 2000 - speed * 100); // Increase speed over time
-    speed += 0.1; // Gradually increase speed
+    setTimeout(gameLoop, 2000 - speed * 100);
+    speed += 0.1; 
 }
 
 gameLoop();
