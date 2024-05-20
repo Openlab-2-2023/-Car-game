@@ -2,8 +2,9 @@ const road = document.getElementById('road');
 const car = document.getElementById('car');
 const scoreDisplay = document.getElementById('score');
 let carPosition = road.offsetWidth / 2 - car.offsetWidth / 2;
-let speed = 5;
-let obstacleSpeed = 2; // Prekážky sa budú pohybovať pomalšie než auto
+let carSpeed = 5; // Počiatočná rýchlosť auta hráča
+let obstacleSpeed = 2; // Počiatočná rýchlosť prekážok
+let leftObstacleSpeed = 3; // Rýchlosť prekážok na ľavej strane
 let gameOver = false;
 let score = 0;
 let carMoveInterval = null;
@@ -51,9 +52,9 @@ function createObstacle() {
         obstacle.style.left = `${Math.random() * (road.offsetWidth / 2 - 50)}px`;
         obstacle.style.top = `-50px`;
     } else {
-        // Right lane (upward moving obstacles)
+        // Right lane (downward moving obstacles)
         obstacle.style.left = `${road.offsetWidth / 2 + Math.random() * (road.offsetWidth / 2 - 50)}px`;
-        obstacle.style.bottom = `-50px`;
+        obstacle.style.top = `-50px`;
     }
 
     road.appendChild(obstacle);
@@ -70,15 +71,15 @@ function createObstacle() {
                 clearInterval(obstacleInterval);
                 road.removeChild(obstacle);
             } else {
-                obstacle.style.top = `${obstacleTop + obstacleSpeed}px`;
+                obstacle.style.top = `${obstacleTop + leftObstacleSpeed}px`;
             }
         } else {
-            const obstacleBottom = parseInt(obstacle.style.bottom);
-            if (obstacleBottom > road.offsetHeight) {
+            const obstacleTop = parseInt(obstacle.style.top);
+            if (obstacleTop > road.offsetHeight) {
                 clearInterval(obstacleInterval);
                 road.removeChild(obstacle);
             } else {
-                obstacle.style.bottom = `${obstacleBottom + obstacleSpeed}px`;
+                obstacle.style.top = `${obstacleTop + obstacleSpeed}px`;
             }
         }
 
@@ -134,7 +135,7 @@ function createCoin() {
             clearInterval(coinInterval);
             road.removeChild(coin);
         } else {
-            coinPosition += speed;
+            coinPosition += carSpeed;
             coin.style.top = `${coinPosition}px`;
             if (checkCollision(car, coin)) {
                 score += coinData.value;
@@ -177,8 +178,9 @@ function resetGame() {
     coins.forEach(coin => road.removeChild(coin));
     carPosition = road.offsetWidth / 2 - car.offsetWidth / 2;
     car.style.left = `${carPosition}px`;
-    speed = 5;
-    obstacleSpeed = 2;
+    carSpeed = 5; // Reset player car speed
+    obstacleSpeed = 2; // Reset obstacle speed
+    leftObstacleSpeed = 3; // Reset left lane obstacle speed
     score = 0;
     scoreDisplay.innerText = `Score: ${score}`;
     gameOver = false;
@@ -189,9 +191,10 @@ function gameLoop() {
     if (gameOver) return;
     createObstacle();
     createCoin();
-    setTimeout(gameLoop, 2000 - speed * 100);
-    speed += 0.1; 
+    setTimeout(gameLoop, 2000 - carSpeed * 100);
+    carSpeed += 0.1; 
     obstacleSpeed += 0.05; // Increment the speed of obstacles slower than the car's speed
+    leftObstacleSpeed += 0.05; // Increment the speed of left lane obstacles
 }
 
 gameLoop();
