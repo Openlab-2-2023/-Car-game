@@ -2,9 +2,11 @@ const road = document.getElementById('road');
 const car = document.getElementById('car');
 const scoreDisplay = document.getElementById('score');
 let carPosition = road.offsetWidth / 2 - car.offsetWidth / 2;
-let speed = 2;
+let speed = 5;
+let obstacleSpeed = 2; // Prekážky sa budú pohybovať pomalšie než auto
 let gameOver = false;
 let score = 0;
+let carMoveInterval = null;
 
 const coinSizes = [
     { size: 10, value: 5 },
@@ -12,13 +14,27 @@ const coinSizes = [
     { size: 30, value: 15 }
 ];
 
+car.style.left = `${carPosition}px`;
+
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft' && carPosition > 0) {
-        carPosition -= 10;
-    } else if (e.key === 'ArrowRight' && carPosition < road.offsetWidth - car.offsetWidth) {
-        carPosition += 10;
+    if (carMoveInterval) return; // Prevent multiple intervals
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        carMoveInterval = setInterval(() => {
+            if (e.key === 'ArrowLeft' && carPosition > 0) {
+                carPosition -= 10;
+            } else if (e.key === 'ArrowRight' && carPosition < road.offsetWidth - car.offsetWidth) {
+                carPosition += 10;
+            }
+            car.style.left = `${carPosition}px`;
+        }, 50);
     }
-    car.style.left = `${carPosition}px`;
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        clearInterval(carMoveInterval);
+        carMoveInterval = null;
+    }
 });
 
 function createObstacle() {
@@ -26,22 +42,50 @@ function createObstacle() {
 
     const obstacle = document.createElement('div');
     obstacle.className = 'obstacle';
-    obstacle.style.left = `${Math.random() * (road.offsetWidth - 50)}px`;
+    
+    // Determine the lane for the obstacle
+    const lane = Math.random() < 0.5 ? 'left' : 'right';
+
+    if (lane === 'left') {
+        // Left lane (downward moving obstacles)
+        obstacle.style.left = `${Math.random() * (road.offsetWidth / 2 - 50)}px`;
+        obstacle.style.top = `-50px`;
+    } else {
+        // Right lane (upward moving obstacles)
+        obstacle.style.left = `${road.offsetWidth / 2 + Math.random() * (road.offsetWidth / 2 - 50)}px`;
+        obstacle.style.bottom = `-50px`;
+    }
+
     road.appendChild(obstacle);
 
-    let obstaclePosition = 0;
     const obstacleInterval = setInterval(() => {
-        if (obstaclePosition > road.offsetHeight) {
+        if (gameOver) {
             clearInterval(obstacleInterval);
-            road.removeChild(obstacle);
-        } else {
-            obstaclePosition += speed;
-            obstacle.style.top = `${obstaclePosition}px`;
-            if (checkCollision(car, obstacle)) {
-                gameOver = true;
-                alert('Game Over!');
-                resetGame();
+            return;
+        }
+
+        if (lane === 'left') {
+            const obstacleTop = parseInt(obstacle.style.top);
+            if (obstacleTop > road.offsetHeight) {
+                clearInterval(obstacleInterval);
+                road.removeChild(obstacle);
+            } else {
+                obstacle.style.top = `${obstacleTop + obstacleSpeed}px`;
             }
+        } else {
+            const obstacleBottom = parseInt(obstacle.style.bottom);
+            if (obstacleBottom > road.offsetHeight) {
+                clearInterval(obstacleInterval);
+                road.removeChild(obstacle);
+            } else {
+                obstacle.style.bottom = `${obstacleBottom + obstacleSpeed}px`;
+            }
+        }
+
+        if (checkCollision(car, obstacle)) {
+            gameOver = true;
+            alert('Game Over!');
+            resetGame();
         }
     }, 20);
 }
@@ -54,13 +98,15 @@ function createCoin() {
     coin.className = 'coin';
     coin.style.width = `${coinData.size}px`;
     coin.style.height = `${coinData.size}px`;
-    
+
     let coinLeft;
+    let coinTop = -coinData.size;
     let validPosition = false;
 
     while (!validPosition) {
         coinLeft = Math.random() * (road.offsetWidth - coinData.size);
         coin.style.left = `${coinLeft}px`;
+        coin.style.top = `${coinTop}px`;
         validPosition = true;
 
         // Temporarily add the coin to the DOM to check its position
@@ -131,11 +177,12 @@ function resetGame() {
     coins.forEach(coin => road.removeChild(coin));
     carPosition = road.offsetWidth / 2 - car.offsetWidth / 2;
     car.style.left = `${carPosition}px`;
-    speed = 2;
+    speed = 5;
+    obstacleSpeed = 2;
     score = 0;
     scoreDisplay.innerText = `Score: ${score}`;
     gameOver = false;
-    gameLoop();
+    setTimeout(gameLoop, 1000); // Delay to ensure obstacles are cleared
 }
 
 function gameLoop() {
@@ -144,6 +191,7 @@ function gameLoop() {
     createCoin();
     setTimeout(gameLoop, 2000 - speed * 100);
     speed += 0.1; 
+    obstacleSpeed += 0.05; // Increment the speed of obstacles slower than the car's speed
 }
 
 gameLoop();
