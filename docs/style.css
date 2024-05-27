@@ -1,52 +1,127 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
+    background-image: url('background.jpg');
+    background-size: cover; /* Prispôsobenie obrázka na celé pozadie */
+    background-position: center; /* Centrovanie obrázka */
+    background-repeat: no-repeat; /* Zabrániť opakovaniu obrázka */
+    width: 100%; /* Nastavenie šírky na 100% */
+    height: 100vh; /* Nastavenie výšky na 100% okna prehliadača */
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+nav {
+    width: 100%;
+    background-color: #444;
+    padding: 10px 0;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
 }
 
 #gameContainer {
-    width: 100%;
-    height: 100vh;
+    flex: 1; /* Zaberá všetok dostupný priestor */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #f0f0f0;
     overflow: hidden;
+    width: 100%;
 }
 
 #road {
     position: relative;
-    width: 300px;
-    height: 500px;
-    background-color: #666;
+    width: 400px; /* Širšia cesta */
+    height: 600px; /* Viac priestoru pre herné pole */
+    background: linear-gradient(#fe5f5f, #444);
     overflow: hidden;
+    border: 5px solid #222;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 #car {
     position: absolute;
-    bottom: 20px;
+    bottom: 30px;
     width: 50px;
-    height: 80px;
-    background-color: red;
-    left: calc(50% - 25px); /* centruje auto*/
+    height: 60px;
+    background: url('police_car.png') no-repeat center / contain;
+    left: calc(50% - 40px); /* Stredovanie auta */
 }
 
 .obstacle {
+    background-color: blue;
     position: absolute;
     width: 50px;
     height: 50px;
-    background-color: gray;
+    background: url('bariera.png') no-repeat center / contain;
 }
 
 .coin {
     position: absolute;
     width: 20px;
     height: 20px;
-    background-color: gold;
-    border-radius: 50%;
+    background: url('coin.png') no-repeat center / contain;
 }
 
 #score {
     margin-top: 10px;
     font-size: 20px;
+    background: #222;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#startButton {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+#gameOverText {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 34px;
+    font-weight: bold;
+    color: #FF5733; /* Oranžová farba */
+}
+
+
+.Tutorial{
+    margin-top: 100px;
+    font-size: small;
+}
+
+h1{
+    size: 30px
 }

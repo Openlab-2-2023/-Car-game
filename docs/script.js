@@ -1,24 +1,29 @@
 const road = document.getElementById('road');
 const car = document.getElementById('car');
 const scoreDisplay = document.getElementById('score');
+const startButton = document.getElementById('startButton');
+const gameOverText = document.getElementById('gameOverText');
+
 let carPosition = road.offsetWidth / 2 - car.offsetWidth / 2;
-let carSpeed = 5; // Počiatočná rýchlosť auta hráča
-let obstacleSpeed = 2; // Počiatočná rýchlosť prekážok
-let leftObstacleSpeed = 3; // Rýchlosť prekážok na ľavej strane
+let carSpeed = 5;
+let obstacleSpeed = 2;
+let leftObstacleSpeed = 3;
 let gameOver = false;
 let score = 0;
 let carMoveInterval = null;
 
 const coinSizes = [
-    { size: 10, value: 5 },
-    { size: 20, value: 10 },
-    { size: 30, value: 15 }
+    { size: 20, value: 5 },
+    { size: 30, value: 10 },
+    { size: 0, value: 15 }
 ];
 
 car.style.left = `${carPosition}px`;
 
+startButton.addEventListener('click', startGame);
+
 document.addEventListener('keydown', (e) => {
-    if (carMoveInterval) return; // Prevent multiple intervals
+    if (carMoveInterval) return;
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         carMoveInterval = setInterval(() => {
             if (e.key === 'ArrowLeft' && carPosition > 0) {
@@ -38,21 +43,26 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
+function startGame() {
+    gameOver = false;
+    gameOverText.style.display = 'none'; // Skryje upozornenie "Game Over"
+    startButton.style.display = 'none'; // Skryje tlačidlo "Start"
+    resetGame();
+    gameLoop();
+}
+
 function createObstacle() {
     if (gameOver) return;
 
     const obstacle = document.createElement('div');
     obstacle.className = 'obstacle';
     
-    // Determine the lane for the obstacle
     const lane = Math.random() < 0.5 ? 'left' : 'right';
 
     if (lane === 'left') {
-        // Left lane (downward moving obstacles)
         obstacle.style.left = `${Math.random() * (road.offsetWidth / 2 - 50)}px`;
         obstacle.style.top = `-50px`;
     } else {
-        // Right lane (downward moving obstacles)
         obstacle.style.left = `${road.offsetWidth / 2 + Math.random() * (road.offsetWidth / 2 - 50)}px`;
         obstacle.style.top = `-50px`;
     }
@@ -65,27 +75,19 @@ function createObstacle() {
             return;
         }
 
-        if (lane === 'left') {
-            const obstacleTop = parseInt(obstacle.style.top);
-            if (obstacleTop > road.offsetHeight) {
-                clearInterval(obstacleInterval);
-                road.removeChild(obstacle);
-            } else {
-                obstacle.style.top = `${obstacleTop + leftObstacleSpeed}px`;
-            }
+        const obstacleTop = parseInt(obstacle.style.top);
+        if (obstacleTop > road.offsetHeight) {
+            clearInterval(obstacleInterval);
+            road.removeChild(obstacle);
         } else {
-            const obstacleTop = parseInt(obstacle.style.top);
-            if (obstacleTop > road.offsetHeight) {
-                clearInterval(obstacleInterval);
-                road.removeChild(obstacle);
-            } else {
-                obstacle.style.top = `${obstacleTop + obstacleSpeed}px`;
-            }
+            obstacle.style.top = `${obstacleTop + (lane === 'left' ? leftObstacleSpeed : obstacleSpeed)}px`;
         }
 
         if (checkCollision(car, obstacle)) {
             gameOver = true;
-            alert('Game Over!');
+            gameOverText.style.display = 'block'; // Zobrazí upozornenie "Game Over"
+            gameOverText.style.top = `${(road.offsetHeight - gameOverText.offsetHeight) / 2}px`;
+            startButton.style.display = 'block'; // Zobrazí tlačidlo "Start" po skončení hry
             resetGame();
         }
     }, 20);
@@ -110,7 +112,6 @@ function createCoin() {
         coin.style.top = `${coinTop}px`;
         validPosition = true;
 
-        // Temporarily add the coin to the DOM to check its position
         road.appendChild(coin);
         const obstacles = document.querySelectorAll('.obstacle');
         obstacles.forEach(obstacle => {
@@ -118,13 +119,11 @@ function createCoin() {
                 validPosition = false;
             }
         });
-        // Remove the coin if the position is not valid
         if (!validPosition) {
             road.removeChild(coin);
         }
     }
 
-    // If the coin is not already in the DOM, add it
     if (!coin.parentElement) {
         road.appendChild(coin);
     }
@@ -178,13 +177,8 @@ function resetGame() {
     coins.forEach(coin => road.removeChild(coin));
     carPosition = road.offsetWidth / 2 - car.offsetWidth / 2;
     car.style.left = `${carPosition}px`;
-    carSpeed = 5; // Reset player car speed
-    obstacleSpeed = 2; // Reset obstacle speed
-    leftObstacleSpeed = 3; // Reset left lane obstacle speed
     score = 0;
     scoreDisplay.innerText = `Score: ${score}`;
-    gameOver = false;
-    setTimeout(gameLoop, 1000); // Delay to ensure obstacles are cleared
 }
 
 function gameLoop() {
@@ -193,8 +187,8 @@ function gameLoop() {
     createCoin();
     setTimeout(gameLoop, 2000 - carSpeed * 100);
     carSpeed += 0.1; 
-    obstacleSpeed += 0.05; // Increment the speed of obstacles slower than the car's speed
-    leftObstacleSpeed += 0.05; // Increment the speed of left lane obstacles
+    obstacleSpeed += 0.05;
+    leftObstacleSpeed += 0.05;
 }
 
 gameLoop();
