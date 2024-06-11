@@ -49,9 +49,9 @@ nav ul li a {
 
 #road {
     position: relative;
-    width: 500px; /* Širšia cesta */
-    height: 900px; /* Viac priestoru pre herné pole */
-    background: linear-gradient(#fe5f5f, #444);
+    width: 45%; /* Širšia cesta */
+    height: 150%; /* Viac priestoru pre herné pole */
+    background-image: url("background.png");
     overflow: hidden;
     border: 5px solid #222;
     border-radius: 10px;
@@ -70,9 +70,9 @@ nav ul li a {
 .obstacle {
     background-color: blue;
     position: absolute;
-    width: 50px;
-    height: 50px;
-    background: url('bariera.png') no-repeat center / contain;
+    width: 40px;
+    height: 60px;
+    background: url('modern_caaaaaaaaaaaaar.png') no-repeat center / contain;
 }
 
 .coin {
