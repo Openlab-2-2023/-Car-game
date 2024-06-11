@@ -49,8 +49,8 @@ nav ul li a {
 
 #road {
     position: relative;
-    width: 400px; /* Širšia cesta */
-    height: 600px; /* Viac priestoru pre herné pole */
+    width: 500px; /* Širšia cesta */
+    height: 900px; /* Viac priestoru pre herné pole */
     background: linear-gradient(#fe5f5f, #444);
     overflow: hidden;
     border: 5px solid #222;
@@ -127,4 +127,9 @@ h1{
 }
 #score, #highestScore {
     margin-top: 10px;
+    font-size: 20px;
+    background: #222;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
