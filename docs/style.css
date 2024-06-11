@@ -125,3 +125,6 @@ nav ul li a {
 h1{
     size: 30px
 }
+#score, #highestScore {
+    margin-top: 10px;
+}

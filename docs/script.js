@@ -1,6 +1,7 @@
 const road = document.getElementById('road');
 const car = document.getElementById('car');
 const scoreDisplay = document.getElementById('score');
+const highestScoreDisplay = document.getElementById('highestScore');
 const startButton = document.getElementById('startButton');
 const gameOverText = document.getElementById('gameOverText');
 
@@ -16,6 +17,7 @@ let initialCoinSpeed = 2;
 let coinSpeed = initialCoinSpeed;
 let gameOver = false;
 let score = 0;
+let highestScore = 0;
 let carMoveInterval = null;
 let gameLoopInterval = null;
 let carMoveDirection = { left: false, right: false, up: false, down: false };
@@ -75,8 +77,8 @@ function moveCar() {
 
 function startGame() {
     gameOver = false;
-    gameOverText.style.display = 'none'; // Skryje upozornenie "Game Over"
-    startButton.style.display = 'none'; // Skryje tlačidlo "Start"
+    gameOverText.style.display = 'none'; // Hide "Game Over" message
+    startButton.style.display = 'none'; // Hide "Start" button
     resetGame();
     carMoveInterval = setInterval(moveCar, 50);
     gameLoop();
@@ -116,9 +118,9 @@ function createObstacle() {
 
         if (checkCollision(car, obstacle)) {
             gameOver = true;
-            gameOverText.style.display = 'block'; // Zobrazí upozornenie "Game Over"
+            gameOverText.style.display = 'block'; // Show "Game Over" message
             gameOverText.style.top = `${(road.offsetHeight - gameOverText.offsetHeight) / 2}px`;
-            startButton.style.display = 'block'; // Zobrazí tlačidlo "Start" po skončení hry
+            startButton.style.display = 'block'; // Show "Start" button after the game ends
             clearInterval(carMoveInterval);
             resetGame();
         }
@@ -179,7 +181,7 @@ function createCoin() {
             coin.style.top = `${coinPosition}px`;
             if (checkCollision(car, coin)) {
                 score += coinData.value;
-                scoreDisplay.innerText = `Skóre: ${score}`;
+                scoreDisplay.innerText = `Score: ${score}`;
                 clearInterval(coinInterval);
                 road.removeChild(coin);
             }
@@ -214,25 +216,31 @@ function checkOverlap(element1, element2) {
 }
 
 function resetGame() {
-    // Zastavenie všetkých aktívnych intervalov
+    // Stop all active intervals
     activeIntervals.forEach(interval => clearInterval(interval));
     activeIntervals = [];
 
-    // Odstránenie všetkých prekážok a mincí
+    // Remove all obstacles and coins
     const obstacles = document.querySelectorAll('.obstacle');
     const coins = document.querySelectorAll('.coin');
     obstacles.forEach(obstacle => road.removeChild(obstacle));
     coins.forEach(coin => road.removeChild(coin));
 
-    // Resetovanie pozícií auta
+    // Reset car positions
     carPositionX = road.offsetWidth / 2 - car.offsetWidth / 2;
     carPositionY = road.offsetHeight - car.offsetHeight - 10;
     car.style.left = `${carPositionX}px`;
     car.style.top = `${carPositionY}px`;
 
-    // Resetovanie skóre a rýchlostí
+    // Update highest score if necessary
+    if (score > highestScore) {
+        highestScore = score;
+        highestScoreDisplay.innerText = `Best Score: ${highestScore}`;
+    }
+
+    // Reset score and speeds
     score = 0;
-    scoreDisplay.innerText = `Skóre: ${score}`;
+    scoreDisplay.innerText = `Score: ${score}`;
     carSpeed = initialCarSpeed;
     obstacleSpeed = initialObstacleSpeed;
     leftObstacleSpeed = initialLeftObstacleSpeed;
@@ -243,10 +251,50 @@ function gameLoop() {
     if (gameOver) return;
     createObstacle();
     createCoin();
+    createRacingCar(); // Add new racing car
     setTimeout(gameLoop, 2000 - carSpeed * 100);
     carSpeed += 0.1;
     obstacleSpeed += 0.05;
     leftObstacleSpeed += 0.05;
 }
 
+function createRacingCar() {
+    if (gameOver) return;
+
+    const racingCar = document.createElement('div');
+    racingCar.className = 'racingCar';
+    racingCar.style.left = `${Math.random() * (road.offsetWidth - 50)}px`;
+    racingCar.style.top = `-50px`;
+
+    road.appendChild(racingCar);
+
+    const racingCarInterval = setInterval(() => {
+        if (gameOver) {
+            clearInterval(racingCarInterval);
+            return;
+        }
+
+        const racingCarTop = parseInt(racingCar.style.top);
+        if (racingCarTop > road.offsetHeight) {
+            clearInterval(racingCarInterval);
+            road.removeChild(racingCar);
+        } else {
+            racingCar.style.top = `${racingCarTop + obstacleSpeed}px`;
+        }
+
+        if (checkCollision(car, racingCar)) {
+            gameOver = true;
+            gameOverText.style.display = 'block'; // Show "Game Over" message
+            gameOverText.style.top = `${(road.offsetHeight - gameOverText.offsetHeight) / 2}px`;
+            startButton.style.display = 'block'; // Show "Start" button after the game ends
+            clearInterval(carMoveInterval);
+            resetGame();
+        }
+    }, 20);
+
+    activeIntervals.push(racingCarInterval);
+}
+
 startButton.addEventListener('click', startGame);
+
+
