@@ -296,5 +296,3 @@ function createRacingCar() {
 }
 
 startButton.addEventListener('click', startGame);
-
-
