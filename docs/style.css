@@ -2,43 +2,19 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
     background-image: url('background.jpg');
-    background-size: cover; /* Prispôsobenie obrázka na celé pozadie */
-    background-position: center; /* Centrovanie obrázka */
-    background-repeat: no-repeat; /* Zabrániť opakovaniu obrázka */
-    width: 100%; /* Nastavenie šírky na 100% */
-    height: 100vh; /* Nastavenie výšky na 100% okna prehliadača */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100vh;
     color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-nav {
-    width: 100%;
-    background-color: #444;
-    padding: 10px 0;
-}
-
-nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-}
-
-nav ul li {
-    margin: 0 15px;
-}
-
-nav ul li a {
-    text-decoration: none;
-    color: #fff;
-    font-size: 18px;
-}
-
 #gameContainer {
-    flex: 1; /* Zaberá všetok dostupný priestor */
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -49,8 +25,8 @@ nav ul li a {
 
 #road {
     position: relative;
-    width: 45%; /* Širšia cesta */
-    height: 150%; /* Viac priestoru pre herné pole */
+    width: 45%;
+    height: 150%;
     background-image: url("background.png");
     overflow: hidden;
     border: 5px solid #222;
@@ -64,11 +40,19 @@ nav ul li a {
     width: 50px;
     height: 60px;
     background: url('police_car.png') no-repeat center / contain;
-    left: calc(50% - 40px); /* Stredovanie auta */
+    left: calc(50% - 40px);
+}
+#car2 {
+    position: absolute;
+    bottom: 90px; 
+    width: 50px; 
+    height: 60px; 
+    background: url('car2.png') no-repeat center / contain; 
+    left: calc(50% + 40px);
 }
 
+
 .obstacle {
-    background-color: blue;
     position: absolute;
     width: 40px;
     height: 60px;
@@ -82,7 +66,12 @@ nav ul li a {
     background: url('coin.png') no-repeat center / contain;
 }
 
-#score {
+.rareCoin {
+    background-color: gold;
+    border-radius: 50%;
+}
+
+#score, #highestScore {
     margin-top: 10px;
     font-size: 20px;
     background: #222;
@@ -113,23 +102,14 @@ nav ul li a {
     transform: translate(-50%, -50%);
     font-size: 34px;
     font-weight: bold;
-    color: #FF5733; /* Oranžová farba */
+    color: #FF5733;
 }
 
-
-.Tutorial{
+.Tutorial {
     margin-top: 100px;
     font-size: small;
 }
 
-h1{
-    size: 30px
-}
-#score, #highestScore {
-    margin-top: 10px;
-    font-size: 20px;
-    background: #222;
-    padding: 10px 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+h1 {
+    font-size: 30px;
 }
