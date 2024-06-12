@@ -13,6 +13,39 @@ body {
     align-items: center;
 }
 
+#tutorialContainer {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.tutorial-left, .tutorial-right {
+    margin-bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 15px; /* Increased padding */
+    border-radius: 5px;
+}
+
+.tutorial-left table, .tutorial-right table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tutorial-left th, .tutorial-right th, 
+.tutorial-left td, .tutorial-right td {
+    border: 1px solid #fff;
+    padding: 12px; /* Increased padding */
+    text-align: center;
+    font-size: 18px; /* Increased font size */
+}
+
+.tutorial-left p, .tutorial-right p {
+    margin-top: 10px;
+    font-size: 16px; /* Increased font size */
+}
+
 #gameContainer {
     flex: 1;
     display: flex;
@@ -42,6 +75,7 @@ body {
     background: url('police_car.png') no-repeat center / contain;
     left: calc(50% - 40px);
 }
+
 #car2 {
     position: absolute;
     bottom: 90px; 
@@ -50,7 +84,6 @@ body {
     background: url('car2.png') no-repeat center / contain; 
     left: calc(50% + 40px);
 }
-
 
 .obstacle {
     position: absolute;
@@ -103,11 +136,6 @@ body {
     font-size: 34px;
     font-weight: bold;
     color: #FF5733;
-}
-
-.Tutorial {
-    margin-top: 100px;
-    font-size: small;
 }
 
 h1 {

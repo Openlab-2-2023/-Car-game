@@ -6,10 +6,10 @@ const highestScoreDisplay = document.getElementById('highestScore');
 const startButton = document.getElementById('startButton');
 const gameOverText = document.getElementById('gameOverText');
 
-let carPositionX = road.offsetWidth / 2 - car.offsetWidth / 2;
-let carPositionY = road.offsetHeight - car.offsetHeight - 10;
-let car2PositionX = road.offsetWidth / 2 + car.offsetWidth / 2;
-let car2PositionY = road.offsetHeight - car.offsetHeight - 10;
+let carPositionX;
+let carPositionY;
+let car2PositionX;
+let car2PositionY;
 let initialCarSpeed = 5;
 let carSpeed = initialCarSpeed;
 let initialObstacleSpeed = 2;
@@ -23,19 +23,15 @@ let carMoveInterval = null;
 let car2MoveInterval = null;
 let gameLoopInterval = null;
 let carMoveDirection = { left: false, right: false, up: false, down: false };
+let car2MoveDirection = { left: false, right: false, up: false, down: false };
 let activeIntervals = [];
+let rareMineActive = false;
 
 const coinSizes = [
     { size: 20, value: 5 },
     { size: 30, value: 10 },
     { size: 0, value: 15 }
 ];
-
-car.style.left = `${carPositionX}px`;
-car.style.top = `${carPositionY}px`;
-
-car2.style.left = `${car2PositionX}px`;
-car2.style.top = `${car2PositionY}px`;
 
 startButton.addEventListener('click', startGame);
 
@@ -49,13 +45,13 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === 's' || e.key === 'S') {
         carMoveDirection.down = true;
     } else if (e.key === 'ArrowLeft') {
-        moveCar2Left();
+        car2MoveDirection.left = true;
     } else if (e.key === 'ArrowRight') {
-        moveCar2Right();
+        car2MoveDirection.right = true;
     } else if (e.key === 'ArrowUp') {
-        moveCar2Up();
+        car2MoveDirection.up = true;
     } else if (e.key === 'ArrowDown') {
-        moveCar2Down();
+        car2MoveDirection.down = true;
     }
 });
 
@@ -68,8 +64,14 @@ document.addEventListener('keyup', (e) => {
         carMoveDirection.up = false;
     } else if (e.key === 's' || e.key === 'S') {
         carMoveDirection.down = false;
-    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-        stopCar2();
+    } else if (e.key === 'ArrowLeft') {
+        car2MoveDirection.left = false;
+    } else if (e.key === 'ArrowRight') {
+        car2MoveDirection.right = false;
+    } else if (e.key === 'ArrowUp') {
+        car2MoveDirection.up = false;
+    } else if (e.key === 'ArrowDown') {
+        car2MoveDirection.down = false;
     }
 });
 
@@ -90,44 +92,21 @@ function moveCar() {
     car.style.top = `${carPositionY}px`;
 }
 
-function moveCar2Left() {
-    clearInterval(car2MoveInterval);
-    car2MoveInterval = setInterval(() => {
-        if (car2PositionX > 0) {
-            car2PositionX -= 10;
-            car2.style.left = `${car2PositionX}px`;
-        }
-    }, 50);
-}
-
-function moveCar2Right() {
-    clearInterval(car2MoveInterval);
-    car2MoveInterval = setInterval(() => {
-        if (car2PositionX < road.offsetWidth - car2.offsetWidth) {
-            car2PositionX += 10;
-            car2.style.left = `${car2PositionX}px`;
-        }
-    }, 50);
-}
-
-function moveCar2Up() {
-    clearInterval(car2MoveInterval);
-    car2MoveInterval = setInterval(() => {
-        if (car2PositionY > 0) {
-            car2PositionY -= 10;
-            car2.style.top = `${car2PositionY}px`;
-        }
-    }, 50);
-}
-
-function moveCar2Down() {
-    clearInterval(car2MoveInterval);
-    car2MoveInterval = setInterval(() => {
-        if (car2PositionY < road.offsetHeight - car2.offsetHeight) {
-            car2PositionY += 10;
-            car2.style.top = `${car2PositionY}px`;
-        }
-    }, 50);
+function moveCar2() {
+    if (car2MoveDirection.left && car2PositionX > 0) {
+        car2PositionX -= 10;
+    }
+    if (car2MoveDirection.right && car2PositionX < road.offsetWidth - car2.offsetWidth) {
+        car2PositionX += 10;
+    }
+    if (car2MoveDirection.up && car2PositionY > 0) {
+        car2PositionY -= 10;
+    }
+    if (car2MoveDirection.down && car2PositionY < road.offsetHeight - car2.offsetHeight) {
+        car2PositionY += 10;
+    }
+    car2.style.left = `${car2PositionX}px`;
+    car2.style.top = `${car2PositionY}px`;
 }
 
 function stopCar2() {
@@ -139,7 +118,13 @@ function startGame() {
     gameOverText.style.display = 'none';
     startButton.style.display = 'none';
     resetGame();
+
+    clearInterval(carMoveInterval);
+    clearInterval(car2MoveInterval);
+    clearInterval(gameLoopInterval);
+
     carMoveInterval = setInterval(moveCar, 50);
+    car2MoveInterval = setInterval(moveCar2, 50);
     gameLoopInterval = setInterval(gameLoop, 2000 - carSpeed * 100);
 }
 
@@ -238,6 +223,10 @@ function resetGame() {
     activeIntervals.forEach(interval => clearInterval(interval));
     activeIntervals = [];
 
+    road.querySelectorAll('.obstacle').forEach(obstacle => obstacle.remove());
+    road.querySelectorAll('.coin').forEach(coin => coin.remove());
+    road.querySelectorAll('.rare-mine').forEach(rareMine => rareMine.remove());
+
     carPositionX = road.offsetWidth / 2 - car.offsetWidth / 2;
     carPositionY = road.offsetHeight - car.offsetHeight - 10;
     car.style.left = `${carPositionX}px`;
@@ -258,12 +247,64 @@ function resetGame() {
     carSpeed = initialCarSpeed;
     obstacleSpeed = initialObstacleSpeed;
     coinSpeed = initialCoinSpeed;
+    rareMineActive = false;
 }
 
 function gameLoop() {
     if (gameOver) return;
     createObstacle();
     createCoin();
-    carSpeed += 0.1;
-    obstacleSpeed += 0.03;
+
+    if (Math.random() < 0.01) { // percenta na legend mincu
+        createRareMine();
+    }
+
+    if (score % 50 === 0 && score !== 0 && !rareMineActive) {
+        carSpeed += 1;
+        obstacleSpeed += 1;
+    }
+}
+
+function createRareMine() {
+    const rareMine = document.createElement('div');
+    rareMine.className = 'rare-mine';
+
+    rareMine.style.left = `${Math.random() * (road.offsetWidth - 50)}px`;
+    rareMine.style.top = `-50px`;
+
+    road.appendChild(rareMine);
+
+    const rareMineInterval = setInterval(() => {
+        if (gameOver) {
+            clearInterval(rareMineInterval);
+            return;
+        }
+
+        const rareMineTop = parseInt(rareMine.style.top);
+        if (rareMineTop > road.offsetHeight) {
+            clearInterval(rareMineInterval);
+            road.removeChild(rareMine);
+        } else {
+            rareMine.style.top = `${rareMineTop + coinSpeed}px`;
+        }
+
+        if (checkCollision(car, rareMine) || checkCollision(car2, rareMine)) {
+            clearInterval(rareMineInterval);
+            road.removeChild(rareMine);
+            activateRareMine();
+        }
+    }, 20);
+
+    activeIntervals.push(rareMineInterval);
+}
+
+function activateRareMine() {
+    rareMineActive = true;
+    obstacleSpeed = 0; 
+    carSpeed *= 2; 
+    setTimeout(() => {
+        rareMineActive = false;
+        obstacleSpeed = initialObstacleSpeed;
+        carSpeed = initialCarSpeed;
+    }, 10000); // 10 seconds duration
 }
