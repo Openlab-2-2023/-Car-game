@@ -255,7 +255,7 @@ function gameLoop() {
     createObstacle();
     createCoin();
 
-    if (Math.random() < 0.01) { // percenta na legend mincu
+    if (Math.random() < 0.01) { // 1% chance to spawn a rare mine
         createRareMine();
     }
 
